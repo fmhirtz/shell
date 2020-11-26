@@ -1,5 +1,6 @@
 declare const global: Global,
     imports: any,
+    log: any,
     _: (arg: string) => string;
 
 interface Global {
@@ -25,6 +26,13 @@ interface Rectangular {
     height: number;
 }
 
+interface DialogButtonAction {
+    label: string;
+    action: () => void;
+    key?: number;
+    default?: boolean;
+}
+
 declare type ProcessResult = [boolean, any, any, number];
 declare type SignalID = number;
 
@@ -42,7 +50,7 @@ declare interface GLib {
 
     source_remove(id: SignalID): void;
     spawn_command_line_sync(cmd: string): ProcessResult;
-    spawn_command_line_async(cmd: string): ProcessResult;
+    spawn_command_line_async(cmd: string): boolean;
 
     timeout_add(priority: number, ms: number, callback: () => Boolean): number;
 }
@@ -56,7 +64,7 @@ declare namespace GObject {
     }
 }
 
-declare module Gtk {
+declare namespace Gtk {
     export enum Orientation {
         HORIZONTAL,
         VERTICAL,
@@ -193,6 +201,7 @@ declare namespace Meta {
         is_above(): boolean;
         is_client_decorated(): boolean;
         is_fullscreen(): boolean;
+        is_on_all_workspaces(): boolean;
         is_skip_taskbar(): boolean;
         make_above(): void;
         make_fullscreen(): void;
@@ -243,6 +252,8 @@ declare namespace Shell {
         contentLayout: St.Widget;
         dialogLayout: Dialog;
 
+        addButton(action: DialogButtonAction): void;
+
         close(timestamp: number): void;
         open(timestamp: number, on_primary: boolean): void;
 
@@ -263,6 +274,7 @@ declare namespace St {
         hide(): void;
         remove_style_class_name(name: string): void;
         remove_style_pseudo_class(name: string): void
+        set_style(inlinecss: string): boolean;
         set_style_class_name(name: string): void;
         set_style_pseudo_class(name: string): void;
         show_all(): void;
@@ -270,7 +282,7 @@ declare namespace St {
     }
 
     interface Bin extends St.Widget {
-        set_style(inlinecss: string): boolean;
+        // empty for now
     }
 
     interface Entry extends Widget {
